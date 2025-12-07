@@ -66,7 +66,7 @@ function NoteList() {
     return (
         <div>
             <div className="filters">
-                <form onSubmit={handleSearch} style={{ flex: 1 }}>
+                <form onSubmit={handleSearch} className="search-form">
                     <input
                         name="search"
                         defaultValue={q}
@@ -74,7 +74,7 @@ function NoteList() {
                         className="form-control"
                     />
                 </form>
-                <select value={folder} onChange={handleFolderChange} className="form-control" style={{ width: '200px' }}>
+                <select value={folder} onChange={handleFolderChange} className="form-control folder-select">
                     <option value="">All Folders</option>
                     {folders.map(f => (
                         <option key={f} value={f}>{f}</option>
@@ -88,7 +88,6 @@ function NoteList() {
                         <h3>{note.title}</h3>
                         <div className="note-meta">
                             <span>{new Date(note.updatedAt).toLocaleDateString()}</span>
-                            {' • '}
                             <span>{note.folder}</span>
                         </div>
                     </Link>

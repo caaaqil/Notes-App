@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import ReactMarkdown from 'react-markdown';
 import { getNote, deleteNote } from '../api/notes';
 
 function NoteView() {
@@ -35,6 +34,31 @@ function NoteView() {
         }
     };
 
+    const handleDownload = () => {
+        const element = document.createElement("a");
+        const file = new Blob([`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>${note.title}</title>
+                <style>
+                    body { font-family: sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+                    h1 { border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+                </style>
+            </head>
+            <body>
+                <h1>${note.title}</h1>
+                ${note.body}
+            </body>
+            </html>
+        `], { type: 'text/html' });
+        element.href = URL.createObjectURL(file);
+        element.download = `${note.title}.html`;
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();
+        document.body.removeChild(element);
+    };
+
     if (loading) return <div className="loading">Loading...</div>;
     if (error) return <div className="error">{error}</div>;
     if (!note) return <div className="error">Note not found</div>;
@@ -44,6 +68,7 @@ function NoteView() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <button onClick={() => navigate(-1)} className="btn btn-secondary">Back</button>
                 <div style={{ display: 'flex', gap: '10px' }}>
+                    <button onClick={handleDownload} className="btn btn-secondary">Download</button>
                     <Link to={`/edit/${id}`} className="btn btn-primary">Edit</Link>
                     <button onClick={() => setShowDeleteConfirm(true)} className="btn btn-danger">Delete</button>
                 </div>
@@ -68,12 +93,11 @@ function NoteView() {
 
             <article>
                 <h1 style={{ marginBottom: '5px' }}>{note.title}</h1>
-                <div className="note-meta" style={{ marginBottom: '20px' }}>
-                    <span>{note.folder}</span> • <span>{new Date(note.updatedAt).toLocaleString()}</span>
+                <div className="note-meta">
+                    <span>{new Date(note.updatedAt).toLocaleString()}</span>
+                    <span>{note.folder}</span>
                 </div>
-                <div style={{ lineHeight: '1.6', background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #ddd' }}>
-                    <ReactMarkdown>{note.body}</ReactMarkdown>
-                </div>
+                <div className="note-content" dangerouslySetInnerHTML={{ __html: note.body }} />
             </article>
         </div>
     );
